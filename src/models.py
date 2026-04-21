@@ -38,24 +38,32 @@ class State:
 @dataclass
 class BuySignal:
     ticker: str
+    price: float
     pir: float
     signal_mult: float
     sma_50: float
     atr_pct: float
     vol_factor: float
+    is_deep_dip: bool
 
 
 @dataclass
 class SellDecision:
     ticker: str
     action: str   # "sell_stop_loss" | "sell_trailing" | "activate_trailing" | "hold"
+    unrealized_pct: float
     reason: str
 
 
 @dataclass
 class RegimeInfo:
-    regime: str
-    multiplier: float
+    spy_price: float
+    sma_200: float
+    slope_20d_pct: float
+    above_sma: bool
+    slope_direction: str   # "rising" | "flat" | "falling" | "flat_or_falling"
+    regime_mult: float
+    description: str
 
 
 @dataclass
