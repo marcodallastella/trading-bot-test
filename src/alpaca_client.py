@@ -63,8 +63,9 @@ class AlpacaClient:
             return [
                 Position(
                     ticker=str(p.symbol),
-                    quantity=float(p.qty),
+                    qty=float(p.qty),
                     avg_entry_price=float(p.avg_entry_price),
+                    current_price=float(p.current_price),
                 )
                 for p in raw
             ]

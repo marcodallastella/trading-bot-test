@@ -14,10 +14,12 @@ from src.models import (
 
 
 def test_position_instantiation():
-    pos = Position(ticker="AAPL", quantity=10.5, avg_entry_price=150.00)
+    pos = Position(ticker="AAPL", qty=10.5, avg_entry_price=150.00, current_price=155.00)
     assert pos.ticker == "AAPL"
-    assert pos.quantity == 10.5
+    assert pos.qty == 10.5
     assert pos.avg_entry_price == 150.00
+    assert pos.current_price == 155.00
+    assert pos.unrealized_pct == round((155.00 - 150.00) / 150.00, 4)
 
 
 def test_state_instantiation():
@@ -40,11 +42,13 @@ def test_state_instantiation():
 def test_buy_signal_fields():
     signal = BuySignal(
         ticker="GOOGL",
+        price=182.0,
         pir=0.25,
         signal_mult=1.2,
         sma_50=180.0,
         atr_pct=0.03,
         vol_factor=1.0,
+        is_deep_dip=False,
     )
     assert signal.ticker == "GOOGL"
     assert signal.pir == 0.25
@@ -57,13 +61,21 @@ def test_buy_signal_fields():
 def test_sell_decision_valid_actions():
     valid_actions = ["sell_stop_loss", "sell_trailing", "activate_trailing", "hold"]
     for action in valid_actions:
-        decision = SellDecision(ticker="AAPL", action=action, reason="test reason")
+        decision = SellDecision(ticker="AAPL", action=action, unrealized_pct=-0.05, reason="test reason")
         assert decision.action == action
 
 
 def test_regime_info_multiplier_is_float():
-    info = RegimeInfo(regime="bull", multiplier=1.0)
-    assert isinstance(info.multiplier, float)
+    info = RegimeInfo(
+        spy_price=520.0,
+        sma_200=495.0,
+        slope_20d_pct=0.018,
+        above_sma=True,
+        slope_direction="rising",
+        regime_mult=1.0,
+        description="bull",
+    )
+    assert isinstance(info.regime_mult, float)
 
 
 def test_sizing_result_skip_fields():

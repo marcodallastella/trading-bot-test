@@ -6,8 +6,18 @@ from typing import Optional
 @dataclass
 class Position:
     ticker: str
-    quantity: float
+    qty: float
     avg_entry_price: float
+    current_price: float
+    unrealized_pct: float = field(init=False)
+
+    def __post_init__(self):
+        if self.avg_entry_price > 0:
+            self.unrealized_pct = round(
+                (self.current_price - self.avg_entry_price) / self.avg_entry_price, 4
+            )
+        else:
+            self.unrealized_pct = 0.0
 
 
 @dataclass

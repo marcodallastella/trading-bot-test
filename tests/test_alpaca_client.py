@@ -62,11 +62,13 @@ def test_get_positions_returns_position_objects(mocker):
     pos1.symbol = "AAPL"
     pos1.qty = "5.0"
     pos1.avg_entry_price = "150.00"
+    pos1.current_price = "155.00"
 
     pos2 = mocker.MagicMock()
     pos2.symbol = "NVDA"
     pos2.qty = "2.5"
     pos2.avg_entry_price = "800.00"
+    pos2.current_price = "820.00"
 
     mocker.patch("src.alpaca_client.TradingClient.get_all_positions", return_value=[pos1, pos2])
     client = _make_client(mocker)
