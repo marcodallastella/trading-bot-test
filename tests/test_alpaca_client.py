@@ -10,7 +10,7 @@ def _make_client(mocker) -> AlpacaClient:
     """Create an AlpacaClient with SDK constructors patched out."""
     mocker.patch("src.alpaca_client.TradingClient.__init__", return_value=None)
     mocker.patch("src.alpaca_client.StockHistoricalDataClient.__init__", return_value=None)
-    return AlpacaClient("key", "secret", paper=True)
+    return AlpacaClient(is_paper=True, api_key="key", secret_key="secret")
 
 
 # ── Clock ──────────────────────────────────────────────────────────────────────

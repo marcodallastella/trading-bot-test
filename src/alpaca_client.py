@@ -20,7 +20,11 @@ log = get_logger(__name__)
 
 
 class AlpacaClient:
-    def __init__(self, api_key: str, secret_key: str, paper: bool = True):
+    def __init__(self, is_paper: bool = True, api_key: str | None = None, secret_key: str | None = None):
+        import os
+        api_key = api_key or os.environ.get("ALPACA_API_KEY", "")
+        secret_key = secret_key or os.environ.get("ALPACA_SECRET_KEY", "")
+        paper = is_paper
         base_url = config.ALPACA_BASE_URL_PAPER if paper else config.ALPACA_BASE_URL_LIVE
         self._trading = TradingClient(
             api_key=api_key,
@@ -152,4 +156,26 @@ class AlpacaClient:
             }
         except Exception as exc:
             log.error(f"close_position({ticker}) error: {exc}")
+            return None
+
+    def get_daily_bars(self, ticker: str, limit: int) -> pd.DataFrame:
+        """Fetch daily OHLCV bars. `limit` is the maximum number of bars to return."""
+        return self.get_bars(ticker, lookback_days=limit)
+
+    def get_spy_bars(self, limit: int) -> pd.DataFrame:
+        """Fetch daily SPY bars for regime detection."""
+        return self.get_bars("SPY", lookback_days=limit)
+
+    def get_latest_quote(self, ticker: str) -> dict:
+        """Alias for get_quote."""
+        return self.get_quote(ticker)
+
+    def submit_market_order(self, ticker: str, notional: float, side: str) -> dict | None:
+        """Submit a market order. side must be 'buy' or 'sell'."""
+        if side == "buy":
+            return self.submit_buy_order(ticker, notional)
+        elif side == "sell":
+            return self.close_position(ticker)
+        else:
+            log.error(f"submit_market_order: unknown side '{side}'")
             return None

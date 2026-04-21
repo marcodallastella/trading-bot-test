@@ -10,6 +10,7 @@ class Position:
     avg_entry_price: float
     current_price: float
     unrealized_pct: float = field(init=False)
+    market_value: float = field(init=False)
 
     def __post_init__(self):
         if self.avg_entry_price > 0:
@@ -18,6 +19,7 @@ class Position:
             )
         else:
             self.unrealized_pct = 0.0
+        self.market_value = round(self.qty * self.current_price, 4)
 
 
 @dataclass
