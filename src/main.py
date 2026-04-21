@@ -335,7 +335,8 @@ def run() -> None:
                 order = client.submit_market_order(
                     ticker, sizing.buy_amount_usd, "buy"
                 )
-                fill_price = order.get("fill_price") if order else None
+                if order and isinstance(order, dict):
+                    fill_price = order.get("fill_price")
             except Exception as exc:
                 log.error(f"{ticker}: buy order failed (skipping): {exc}")
                 decisions.append(_logbook_row(
