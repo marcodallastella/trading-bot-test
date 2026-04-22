@@ -1,0 +1,96 @@
+# .github/workflows/backtest.yml
+name: Backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Backtest start date (YYYY-MM-DD)"
+        required: true
+        default: "2023-01-01"
+      end_date:
+        description: "Backtest end date (YYYY-MM-DD)"
+        required: true
+        default: "2024-12-31"
+      run_sweep:
+        description: "Run sensitivity sweep after backtest? (true/false)"
+        required: false
+        default: "false"
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      ALPACA_API_KEY:    ${{ secrets.ALPACA_API_KEY }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      BACKTEST_CACHE_DIR: .backtest_cache
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Cache bar data
+        uses: actions/cache@v4
+        with:
+          path: .backtest_cache
+          key: backtest-bars-${{ inputs.start_date }}-${{ inputs.end_date }}
+          restore-keys: |
+            backtest-bars-
+
+      - name: Run backtest
+        run: |
+          python - <<'EOF'
+          import sys
+          from datetime import date
+          from backtest.run_backtest import run_backtest
+          from src import config
+          import os
+
+          result = run_backtest(
+              universe=config.UNIVERSE,
+              start=date.fromisoformat("${{ inputs.start_date }}"),
+              end=date.fromisoformat("${{ inputs.end_date }}"),
+              api_key=os.environ.get("ALPACA_API_KEY", ""),
+              secret_key=os.environ.get("ALPACA_SECRET_KEY", ""),
+              output_dir="backtest_output",
+          )
+          sys.exit(0)
+          EOF
+
+      - name: Run sensitivity sweep
+        if: ${{ inputs.run_sweep == 'true' }}
+        run: |
+          python - <<'EOF'
+          import os
+          from datetime import date
+          from backtest.sensitivity import run_sweep
+          from src import config
+
+          run_sweep(
+              universe=config.UNIVERSE,
+              start=date.fromisoformat("${{ inputs.start_date }}"),
+              end=date.fromisoformat("${{ inputs.end_date }}"),
+              api_key=os.environ.get("ALPACA_API_KEY", ""),
+              secret_key=os.environ.get("ALPACA_SECRET_KEY", ""),
+              output_dir="backtest_output/sweep",
+          )
+          EOF
+
+      - name: Upload backtest artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-${{ inputs.start_date }}-${{ inputs.end_date }}
+          path: backtest_output/
+          retention-days: 30
