@@ -1,0 +1,52 @@
+# .github/workflows/trade.yml
+name: Daily Trade
+
+on:
+  schedule:
+    - cron: "0 15 * * 1-5"   # 11:00 AM ET (EDT, UTC-4); change to "0 16" for EST (UTC-5)
+  workflow_dispatch:           # allow manual trigger from Actions UI
+
+concurrency:
+  group: trade                 # prevent two runs overlapping
+  cancel-in-progress: false    # never cancel a running trade — let it finish
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15        # hard kill if bot hangs
+
+    env:
+      ALPACA_API_KEY:    ${{ secrets.ALPACA_API_KEY }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      ALPACA_PAPER:      ${{ vars.ALPACA_PAPER }}
+      DRY_RUN:           ${{ vars.DRY_RUN }}
+      LIVE_READY:        ${{ vars.LIVE_READY }}
+      KILL_SWITCH:       ${{ vars.KILL_SWITCH }}
+      GIST_ID:           ${{ secrets.GIST_ID }}
+      GIST_TOKEN:        ${{ secrets.GIST_TOKEN }}
+      DECISIONS_GIST_ID: ${{ secrets.DECISIONS_GIST_ID }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run trading bot
+        run: python -m src.main
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trade-failure-logs-${{ github.run_id }}
+          path: "*.log"
+          retention-days: 7
