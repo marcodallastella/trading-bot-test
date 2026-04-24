@@ -149,7 +149,7 @@ def run() -> None:
         if sell_dec.action in ("sell_stop_loss", "sell_trailing"):
             quote = client.get_latest_quote(pos.ticker)
             spread = _spread_bps(quote)
-            if spread > config.MAX_SPREAD_BPS_SELL:
+            if not is_dry_run and spread > config.MAX_SPREAD_BPS_SELL:
                 log.warning(
                     f"{pos.ticker}: SKIP sell — spread {spread:.0f}bps "
                     f"> {config.MAX_SPREAD_BPS_SELL}bps threshold"
@@ -265,7 +265,7 @@ def run() -> None:
 
         current_price = quote["last"]
         spread = _spread_bps(quote)
-        if spread > config.MAX_SPREAD_BPS_BUY:
+        if not is_dry_run and spread > config.MAX_SPREAD_BPS_BUY:
             log.info(
                 f"{ticker}: SKIP — spread {spread:.0f}bps "
                 f"> {config.MAX_SPREAD_BPS_BUY}bps threshold"
