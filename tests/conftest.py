@@ -4,6 +4,7 @@ import copy
 import pytest
 from unittest.mock import Mock
 from src.models import State, TrailingStop, WashSaleEntry
+from src import config
 
 VALID_STATE_DICT: dict = {
     "rolling_peak_equity": 104.30,
@@ -49,7 +50,7 @@ def make_gist_response(content_dict: dict) -> Mock:
     mock.raise_for_status.return_value = None
     mock.json.return_value = {
         "files": {
-            "trading_bot_state.json": {
+            config.STATE_GIST_FILENAME: {
                 "content": json.dumps(content_dict)
             }
         }

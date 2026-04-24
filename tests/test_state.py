@@ -129,7 +129,7 @@ def test_load_state_sell_only_on_malformed_json(mocker):
     bad = Mock()
     bad.raise_for_status.return_value = None
     bad.json.return_value = {
-        "files": {"trading_bot_state.json": {"content": "this is not json {{{"}}
+        "files": {config.STATE_GIST_FILENAME: {"content": "this is not json {{{"}}
     }
     mocker.patch("src.state.requests.get", return_value=bad)
     _, sell_only = load_state("gist123", "token_abc")

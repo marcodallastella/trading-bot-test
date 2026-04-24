@@ -80,7 +80,7 @@ EQUITY_TIERS: list[dict] = [
 ALPACA_BASE_URL_PAPER = "https://paper-api.alpaca.markets"
 ALPACA_BASE_URL_LIVE  = "https://api.alpaca.markets"
 GIST_API_BASE_URL     = "https://api.github.com/gists"
-STATE_GIST_FILENAME      = "trading_bot_state.json"
+STATE_GIST_FILENAME      = "state.json"
 DECISIONS_GIST_FILENAME  = "decisions.csv"
 GIST_RETRY_DELAY_SECONDS = 3
 

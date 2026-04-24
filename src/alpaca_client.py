@@ -11,6 +11,7 @@ from alpaca.trading.enums import OrderSide, TimeInForce
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest, StockLatestQuoteRequest
 from alpaca.data.timeframe import TimeFrame
+from alpaca.data.enums import DataFeed
 
 from src import config
 from src.logger import get_logger
@@ -79,7 +80,7 @@ class AlpacaClient:
 
     def get_quote(self, ticker: str) -> dict:
         try:
-            req = StockLatestQuoteRequest(symbol_or_symbols=ticker)
+            req = StockLatestQuoteRequest(symbol_or_symbols=ticker, feed=DataFeed.IEX)
             resp = self._data.get_stock_latest_quote(req)
             quote = resp[ticker]
             return {
@@ -100,6 +101,7 @@ class AlpacaClient:
                 timeframe=TimeFrame.Day,
                 start=start,
                 end=end,
+                feed=DataFeed.IEX,
             )
             resp = self._data.get_stock_bars(req)
             bars = resp[ticker]
