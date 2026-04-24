@@ -22,8 +22,8 @@ jobs:
       DRY_RUN:           ${{ vars.DRY_RUN }}
       LIVE_READY:        ${{ vars.LIVE_READY }}
       KILL_SWITCH:       ${{ vars.KILL_SWITCH }}
-      GIST_ID:           ${{ secrets.GIST_ID }}
-      GIST_TOKEN:        ${{ secrets.GIST_TOKEN }}
+      STATE_GIST_ID:     ${{ secrets.STATE_GIST_ID }}
+      GH_PAT:            ${{ secrets.GH_PAT }}
       DECISIONS_GIST_ID: ${{ secrets.DECISIONS_GIST_ID }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
