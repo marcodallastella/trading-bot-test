@@ -57,15 +57,15 @@ def test_validate_data_quality_passes_on_good_data(rising):
 
 
 def test_validate_data_quality_fails_too_few_bars():
-    # Need ≥ 90% of 60 = 54 bars; 53 should fail
-    closes = pd.Series(range(1, 54), dtype=float)
+    # Need ≥ 85% of 60 = 51 bars; 50 should fail
+    closes = pd.Series(range(1, 51), dtype=float)
     valid, reason = validate_data_quality(closes, "AAPL")
     assert valid is False
     assert "bar" in reason.lower()
 
 
 def test_validate_data_quality_passes_at_minimum_bar_count():
-    # Exactly 54 bars (= ceil(60 * 0.9)) → should pass
+    # Exactly 51 bars (= floor(60 * 0.85)) → should pass
     closes = pd.Series(range(1, 55), dtype=float)
     valid, reason = validate_data_quality(closes, "AAPL")
     assert valid is True
